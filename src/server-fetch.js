@@ -2,9 +2,6 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 
-// The URL of the JSON data
-const url = 'https://cdn.openfin.co/release/meta/runtime/versions';
-
 // Function to fetch JSON data
 export async function fetchJSON(url) {
   return new Promise((resolve, reject) => {

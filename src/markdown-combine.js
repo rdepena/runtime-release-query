@@ -17,7 +17,14 @@ export function deleteTempDir() {
 export function combineMarkdownFiles(outputMarkdownFile) {
     const files = fs.readdirSync(markdownTemp);
     const markdownFiles = files.filter(file => file.endsWith('.md'));
-    const sectionHeaders = ['#### New Features', '#### Enhancements', '#### Resolved Issues','#### Chromium Release Notes', '#### Electron Release Notes', '#### Deprecations and Behavioral Changes'];
+    const sectionHeaders = [
+      '#### New Features',
+      '#### Enhancements',
+      '#### Resolved Issues',
+      '#### Chromium Release Notes',
+      '#### Electron Release Notes',
+      '#### Deprecations and Behavioral Changes'
+    ];
 
     combineMarkdownSections(markdownFiles, outputMarkdownFile, sectionHeaders);
 }
@@ -85,5 +92,5 @@ function extractSections(content, sectionHeaders) {
   
     // Write the combined content to the output file
     fs.writeFileSync(outputFile, outputContent, 'utf-8');
-    console.log(`Combined sections saved to ${outputFile}`);
+    console.log(`Combined sections saved to ${path.join(markdownTemp, outputFile)}`);
 }
