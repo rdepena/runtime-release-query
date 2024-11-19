@@ -4,7 +4,9 @@ import { fetchJSON, fetchMarkdown } from './src/server-fetch.js';
 import { filterByDateRange, filterByMajor } from './src/query.js';
 import { createTempDir, deleteTempDir, combineMarkdownFiles } from './src/markdown-combine.js';
 
-const releasesURL = 'https://cdn.openfin.co/release/meta/runtime/versions';
+const cdnRoot = 'https://cdn.openfin.co/release/meta';
+const releasesURL =  `${cdnRoot}/runtime/versions`
+const releaseNotesRoot = `${cdnRoot}/runtime/`;
 const cli = meow({
     help: [
       'Options',
@@ -57,6 +59,12 @@ function getCurrentDateFormatted() {
     // Return the formatted date
     return `${month}/${day}/${year}`;
 }
+function setReleaseNoteUrl(arr) {
+    return arr.map(item => {
+      item.releaseNotesUrl =  releaseNotesRoot + item.releaseNotesTarget;
+      return item;
+    });
+  }
 
 const { startdate: startDate, enddate: endDate, major, combine } = cli.flags;
 let releases = await fetchJSON(releasesURL);
@@ -71,15 +79,16 @@ if (startDate && endDate) {
 console.log(`startDate: ${startDate}, endDate: ${endDate}, major: ${major}, releases: ${releases.length}`);
 if (!cli.flags.table) {
     console.log(releases);
-} else {    
-    console.table(releases, ["version", "releaseDate", "releaseNotesTarget"]);
+} else {
+    const releasesForTabs = setReleaseNoteUrl(releases);
+    console.table(releasesForTabs, ["version", "releaseDate", "releaseNotesUrl"]);
 }
 
 if (combine) {
     const tempDir = createTempDir();
     const markdownFetchPromises = [];
     releases.forEach(release => {
-        markdownFetchPromises.push(fetchMarkdown(`https://cdn.openfin.co/release/meta/runtime/${release.releaseNotesTarget}`, tempDir, `${release.releaseNotesTarget}`));
+        markdownFetchPromises.push(fetchMarkdown(releaseNotesRoot + release.releaseNotesTarget, tempDir, `${release.releaseNotesTarget}`));
     });
 
     await Promise.all(markdownFetchPromises);
